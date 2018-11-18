@@ -14,7 +14,7 @@ import tensorflow as tf
 
 root = Tk()
 C = Canvas(root, bg="black", height=650, width=500)
-filename = PhotoImage(file="/Users/JackMa/Desktop/MLProject/Logo.png")
+filename = PhotoImage(file="Logo.png")
 background_label = Label(root, image=filename)
 background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
@@ -35,7 +35,7 @@ class FreeFormGUI:
         self.greet_button.pack(side=BOTTOM, pady=15)
 
     def free_form(self):
-        os.system("python /Users/JackMa/Desktop/MLProject/freeform.py")
+        os.system("python freeform.py")
 
 
 my_gui = FreeFormGUI(root)
