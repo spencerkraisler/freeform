@@ -7,33 +7,45 @@ from backproj import mask, getHistogram
 from contours import getContours, handleContours
 
 centers = []
+pixels = []
+beta = .3
 
 def getContourCenter(contours, frame=None, draw_center=False):
 	if len(contours) > 0:
 		center = (0,0)
 		for cnt in contours:
-			(x,y,w,h) = cv2.boundingRect(cnt)
-			center = (x + w//2,y + h//2)
+			(x, y, w, h) = cv2.boundingRect(cnt)
+			center = (x + w // 2, y + h // 2)
 			if draw_center:
-				cv2.circle(frame, center, 2, (0, 255, 0), 3)
+				if x == None:
+					cv2.circle(frame, centers[-1], 2, (0, 255, 0), 3)
+				else:
+					if len(pixels) == 0:
+						pixels.append(center)
+					pixel_x = int(beta * pixels[-1][0] + (1 - beta) * center[0])
+					pixel_y = int(beta * pixels[-1][1] + (1 - beta) * center[1])
+					pixels.append((pixel_x, pixel_y))
+					cv2.circle(frame, pixels[-1], 2, (0, 0, 0), 3)
 		return center
 
 
 def getLength(p1, p2):
 	return sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
 
-def drawCenters(centers, frame):
-	size = len(centers)
+def drawCenters(pixels, frame):
+	size = len(pixels)
 	for i in range(size):
-		c = centers[i]
 		if i > 0:
-			c_last = centers[i-1]
-			if c_last != None and c != None and getLength(c_last, c) < 100:
+			c = pixels[i]
+			c_last = pixels[i - 1]
+			if c_last != None and c != None and getLength(c_last, c) < 400:
 					cv2.line(frame, c_last, c, (0, 255, 0), 4)
 	
 def handleCenters(centers):
+	if len(pixels) > 400:
+		del pixels[0]	
 	if len(centers) > 400:
-		del centers[0]	
+		del centers[0]
 
 def startVideoFeed(cam_index, hist=None):
 
@@ -46,8 +58,11 @@ def startVideoFeed(cam_index, hist=None):
 		thresh_frame = mask(roi_hist, frame)
 		contours = getContours(thresh_frame)
 		contours = handleContours(contours)
+		frame = np.ones(frame.shape) * 255
 		centers.append(getContourCenter(contours, frame, draw_center=True))
-		drawCenters(centers, frame)
+		drawCenters(pixels, frame)
+		#print(len(centers))
+		#print(len(pixels))
 		frame = np.flip(frame, 1)
 		cv2.imshow('frame', frame)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
