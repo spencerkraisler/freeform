@@ -62,7 +62,7 @@ def startVideoFeed(cam_index, hist=None):
 		centers.append(getContourCenter(contours, canvas, draw_center=True))
 		drawCenters(pixels, canvas)
 		canvas = np.flip(canvas, 1)
-		canvas = cv2.resize(canvas, (800, 600))
+		canvas = cv2.resize(canvas, (650, 500))
 		#frame = cv2.resize(frame, (400, 400))
 		#output = np.hstack((frame, canvas))
 		cv2.imshow('freeflow', canvas)
