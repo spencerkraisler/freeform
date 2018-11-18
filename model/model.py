@@ -7,39 +7,40 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils, models
 from PIL import Image
 from random import randint
+import cv2
 
-# Ignore warnings
-import warnings
-warnings.filterwarnings("ignore")
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-labels = os.listdir("../data/images")
-for i in range(len(labels)):
-	if labels[i] == ".DS_Store": 
-		del labels[i]
-		i += 1
-print(labels)
+PATH_TO_IMAGES = "../data/images/"
+
+def get_labels():
+	proto_labels = os.listdir(PATH_TO_IMAGES)
+	labels = []
+	for label in proto_labels:
+		if label != ".DS_Store": 
+			labels.append(label)
+	return labels
+
+labels = get_labels()
+
 
 class DoodleDataset(Dataset):
-	def __init__(self, data_dir):
-		self.data_dir = data_dir
 
 	def __len__(self):
 		return len(labels)
 
-	def __getitem__(self, label):
-		label_name = labels[label]
-		fruit_list = os.listdir(self.main_dir + self.root_dir + label_name)
-
-		r = randint(0, len(fruit_list) - 1)
-		img_id = fruit_list[r]
-		img_name = os.path.join(self.main_dir + self.root_dir, label_name + "/" + img_id)
-
-		image = io.imread(img_name)
-		image = Image.fromarray(image, "RGB")
-		image = transforms.Resize(224)(image)
+	def __getitem__(self, label_idx):
+		label = labels[label_idx]
+		list_of_image_names = os.listdir(PATH_TO_IMAGES + label + "/")
+		r = randint(0, len(list_of_image_names) - 1)
+		image_name = list_of_image_names[r]
+		image_path = PATH_TO_IMAGES + label + "/" + image_name
+		image = cv2.imread(image_path)
+		cv2.imshow('test', image)
+		image = np.expand_dims(image, 0)
+		image = np.concatenate((image, image, image))
+		image = np.resize(image, (224, 224, 3))
+		image = Image.fromarray(image, 'RGB')
 		image = transforms.ToTensor()(image).float().div(255.0)
-
-		sample = (image, label)
+		sample = (image, label_idx)
 		return sample
 
 	def showImage(self, idx):
@@ -48,60 +49,61 @@ class DoodleDataset(Dataset):
 		image = transforms.ToPILImage()(image)
 		image.show()
 
-class DataLoader:
-	def __init__(self, dataset, batch_size):
-		self.dataset = dataset
-		self.batch_size = batch_size
-
-	def __call__(self):
-		images_load = []
-		labels_load = []
-		for i in range(self.batch_size):
-			r = randint(0, len(self.dataset) - 1)
-			sample = self.dataset[r]
-			images_load.append(sample[0])
-			labels_load.append(sample[1])
-		labels_load = torch.Tensor(labels_load).long()
-		images_load = torch.stack(images_load)
-		return images_load, labels_load
-
 from torch.autograd import Variable
 import torch.nn.functional as F
 from torch import nn
 
 learning_rate = .001
-n_epochs = 12
-batch_size = 10
+n_epochs = 400
+batch_size = 5
 
-train_set = FruitDataset("fruits-360/", "Training/")
-train_loader = DataLoader(train_set, batch_size=batch_size)
+train_set = DoodleDataset()
+train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
+print("Creating model...")
+model = models.resnet50()
+model.fc = nn.Linear(2048, 5)
 
-model = models.resnet18()
-model.fc = nn.Linear(512, 78)
-model = model.to(device)
-
-criterion = torch.nn.CrossEntropyLoss()
+train_set[3]
+criterion = nn.CrossEntropyLoss
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
+
+def getOneHotEncoded(idxes):
+	OHV = np.zeros((len(idxes), 5))
+	i = 0
+	for idx in idxes:
+		OHV[i][idx] = 1
+		i += 1
+	OHV = torch.Tensor(OHV)
+	return OHV
+
+print("Begin training...")
 for epoch in range(n_epochs):
-	for i in range(len(train_set)):
-		images, actuals = train_loader()
-		images = images.to(device)
-		actuals = actuals.to(device)
+	for i, samples in enumerate(train_loader):
+		
+		images, ground_truths = samples
+		ground_truths = getOneHotEncoded(ground_truths)
 		outputs = model.forward(images)
 
 		 # Forward pass
-		loss = criterion(outputs, actuals)
-
+		loss = nn.MSELoss()(outputs, ground_truths)
+		
 		# Backward and optimize
 		optimizer.zero_grad()
 		loss.backward()
 		optimizer.step()
 
-		if (i+1) % 10 == 0:
-			_, predicted = torch.max(outputs, 1)
-			print("Fruits: ")
-			print(actuals.tolist())
+		if epoch % 10 == 0:
+			_, predictions = torch.max(outputs, 1)
+			print("Ground truths: ")
+			print(np.argmax(ground_truths, axis=1).tolist())
 			print("Predictions: ")
-			print(predicted.tolist())
-			print('Epoch [{}/{}], Loss: {:.4f}'.format(epoch+1, n_epochs, loss.item()))
+			print(predictions.tolist())
+			print('Epoch [{}/{}], Loss: {:.4f}'.format(epoch + 1, n_epochs, loss.item()))
+			print()
+
+
+torch.save(model.state_dict(), './model.pth')
+
+
+print("Training has ended...")

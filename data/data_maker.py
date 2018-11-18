@@ -3,8 +3,8 @@ import cv2
 
 
 i = 0
-for i in range(300):
-	image = np.load("full-numpy_bitmap-golf club.npy")[i]
+for i in range(100):
+	image = np.load("./full-numpy_bitmap-bicycle.npy")[i + 8600]
 	image = np.reshape(image, (28, 28))
-	cv2.imwrite("./golf_clubs/IMG_" + str(i) + ".jpg", image)
+	cv2.imwrite("./images/bicycles/IMG_" + str(i + 600) + ".jpg", image)
 
