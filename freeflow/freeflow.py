@@ -36,10 +36,10 @@ def drawCenters(pixels, frame):
 	size = len(pixels)
 	for i in range(size):
 		if i > 0:
-			c = pixels[i]
-			c_last = pixels[i - 1]
-			if c_last != None and c != None and getLength(c_last, c) < 400:
-					cv2.line(frame, c_last, c, (0, 255, 0), 4)
+			p = pixels[i]
+			p_last = pixels[i - 1]
+			if p_last != None and p != None and getLength(p_last, p) < 400:
+					cv2.line(frame, p_last, p, (0, 255, 0), 4)
 	
 def handleCenters(centers):
 	if len(pixels) > 400:
@@ -61,10 +61,8 @@ def startVideoFeed(cam_index, hist=None):
 		frame = np.ones(frame.shape) * 255
 		centers.append(getContourCenter(contours, frame, draw_center=True))
 		drawCenters(pixels, frame)
-		#print(len(centers))
-		#print(len(pixels))
 		frame = np.flip(frame, 1)
-		cv2.imshow('frame', frame)
+		cv2.imshow('frame', cv2.resize(frame, (600, 600)))
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 	cap.release()
@@ -73,5 +71,7 @@ def startVideoFeed(cam_index, hist=None):
 
 roi_img = cv2.imread('./images/roi.jpg', 3)
 roi_hist = getHistogram(roi_img)
+
+
 
 startVideoFeed(0)
