@@ -7,12 +7,13 @@ from backproj import mask, getHistogram
 from contours import getContours, handleContours
 from model.model_deploy import create_model, predict
 from PIL import Image 
+import webbrowser
 
-classes = ['bicycles', 'hats', 'golf_clubs', 'pants', 'forks']
+classes = ['bicycles', 'golf_clubs', 'pants', 'forks']
 
 centers = []
 pixels = []
-beta = .3
+beta = .2
 
 FRAME_HEIGHT = 600
 FRAME_WIDTH = 800
@@ -34,6 +35,8 @@ def reformatCanvas(canvas):
 	tensor += 255
 	tensor /= 255.0
 	tensor *= filt
+	kernel = np.ones((7,7),np.uint8)
+	tensor = cv2.dilate(tensor,kernel,iterations = 1)
 	return tensor
 
 def drawButtons(canvas):
@@ -97,6 +100,7 @@ def startVideoFeed(cam_index, hist=None):
 		drawCenters(pixels, canvas)
 		canvas = np.flip(canvas, 1).copy()
 		drawButtons(canvas)
+		flag = 0
 		if len(pixels) > 0:
 			if buttonCheck(SEARCH_MIN, SEARCH_MAX, pixels[-1][0], pixels[-1][1]):
 				canvas = np.ones(frame.shape) * 255
@@ -109,7 +113,11 @@ def startVideoFeed(cam_index, hist=None):
 				input_tensor = reformatCanvas(canvas)
 				prediction = predict(input_tensor, model)
 				print(classes[prediction])
-				print("SEARCH")
+
+				search = classes[prediction]
+				if flag == 0:
+					webbrowser.open('https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=' + search)
+					flag = 1
 		canvas_resized = cv2.resize(canvas, (FRAME_WIDTH, FRAME_HEIGHT))
 		cv2.imshow('canvas', canvas_resized)
 		if cv2.waitKey(1) & 0xFF == ord('q'):

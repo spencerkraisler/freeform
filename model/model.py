@@ -54,14 +54,14 @@ import torch.nn.functional as F
 from torch import nn
 
 learning_rate = .001
-n_epochs = 400
+n_epochs = 1sd00
 batch_size = 5
 
 train_set = DoodleDataset()
 train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
 print("Creating model...")
 model = models.resnet50()
-model.fc = nn.Linear(2048, 5)
+model.fc = nn.Linear(2048, 4)
 
 train_set[3]
 criterion = nn.CrossEntropyLoss
@@ -69,7 +69,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 
 def getOneHotEncoded(idxes):
-	OHV = np.zeros((len(idxes), 5))
+	OHV = np.zeros((len(idxes), 4))
 	i = 0
 	for idx in idxes:
 		OHV[i][idx] = 1

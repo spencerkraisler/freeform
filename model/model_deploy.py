@@ -12,12 +12,12 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 from torch import nn
 
-classes = ['bicycles', 'hats', 'golf_clubs', 'pants', 'forks']
+classes = ['bicycles', 'golf_clubs', 'pants', 'forks']
 
 
 def create_model(model_path):
 	model = models.resnet50()
-	model.fc = nn.Linear(2048, 5)
+	model.fc = nn.Linear(2048, 4)
 	model.load_state_dict(torch.load(model_path))
 	return model 
 
