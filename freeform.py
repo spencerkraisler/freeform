@@ -77,9 +77,9 @@ def startVideoFeed(cam_index, hist=None):
 	cv2.destroyAllWindows()
 
 
-roi_img = cv2.imread('./images/roi.jpg', 3)
+roi_img = cv2.imread('./images/roi_green.jpg', 3)
 roi_hist = getHistogram(roi_img)
 
 
 
-startVideoFeed(0)
+startVideoFeed(1)
