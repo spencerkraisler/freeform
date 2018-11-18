@@ -10,6 +10,9 @@ centers = []
 pixels = []
 beta = .3
 
+FRAME_HEIGHT = 600
+FRAME_WIDTH = 800
+
 def getContourCenter(contours, frame=None, draw_center=False):
 	if len(contours) > 0:
 		center = (0,0)
@@ -25,7 +28,7 @@ def getContourCenter(contours, frame=None, draw_center=False):
 					pixel_x = int(beta * pixels[-1][0] + (1 - beta) * center[0])
 					pixel_y = int(beta * pixels[-1][1] + (1 - beta) * center[1])
 					pixels.append((pixel_x, pixel_y))
-					cv2.circle(frame, pixels[-1], 2, (0, 0, 0), 3)
+					cv2.circle(frame, pixels[-1], 3, (0, 0, 0), 3)
 		return center
 
 
@@ -38,7 +41,7 @@ def drawCenters(pixels, frame):
 		if i > 0:
 			p = pixels[i]
 			p_last = pixels[i - 1]
-			if p_last != None and p != None and getLength(p_last, p) < 400:
+			if p_last != None and p != None and getLength(p_last, p) < 200:
 					cv2.line(frame, p_last, p, (0, 255, 0), 4)
 	
 def handleCenters(centers):
@@ -61,11 +64,13 @@ def startVideoFeed(cam_index, hist=None):
 		canvas = np.ones(frame.shape) * 255
 		centers.append(getContourCenter(contours, canvas, draw_center=True))
 		drawCenters(pixels, canvas)
+		#drawCenters(pixels, frame)
 		canvas = np.flip(canvas, 1)
-		canvas = cv2.resize(canvas, (800, 600))
-		#frame = cv2.resize(frame, (400, 400))
-		#output = np.hstack((frame, canvas))
-		cv2.imshow('freeflow', canvas)
+		#frame = np.flip(frame, 1)
+		canvas_resized = cv2.resize(canvas, (FRAME_WIDTH, FRAME_HEIGHT))
+		#frame_resized = cv2.resize(frame, (FRAME_WIDTH, FRAME_HEIGHT))
+		cv2.imshow('canvas', canvas_resized)
+		#cv2.imshow('frame', frame_resized)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 	cap.release()
