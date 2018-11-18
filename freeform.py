@@ -16,19 +16,19 @@ FRAME_WIDTH = 800
 def getContourCenter(contours, frame=None, draw_center=False):
 	if len(contours) > 0:
 		center = (0,0)
-		for cnt in contours:
-			(x, y, w, h) = cv2.boundingRect(cnt)
-			center = (x + w // 2, y + h // 2)
-			if draw_center:
-				if x == None:
-					cv2.circle(frame, centers[-1], 2, (0, 255, 0), 3)
-				else:
-					if len(pixels) == 0:
-						pixels.append(center)
-					pixel_x = int(beta * pixels[-1][0] + (1 - beta) * center[0])
-					pixel_y = int(beta * pixels[-1][1] + (1 - beta) * center[1])
-					pixels.append((pixel_x, pixel_y))
-					cv2.circle(frame, pixels[-1], 3, (0, 0, 0), 3)
+		cnt = contours[0]
+		(x, y, w, h) = cv2.boundingRect(cnt)
+		center = (x + w // 2, y + h // 2)
+		if draw_center:
+			if x == None:
+				cv2.circle(frame, centers[-1], 2, (0, 255, 0), 3)
+			else:
+				if len(pixels) == 0:
+					pixels.append(center)
+				pixel_x = int(beta * pixels[-1][0] + (1 - beta) * center[0])
+				pixel_y = int(beta * pixels[-1][1] + (1 - beta) * center[1])
+				pixels.append((pixel_x, pixel_y))
+				cv2.circle(frame, pixels[-1], 30, (0, 0, 0), 3)
 		return center
 
 
@@ -64,18 +64,16 @@ def startVideoFeed(cam_index, hist=None):
 		canvas = np.ones(frame.shape) * 255
 		centers.append(getContourCenter(contours, canvas, draw_center=True))
 		drawCenters(pixels, canvas)
-		#drawCenters(pixels, frame)
 		canvas = np.flip(canvas, 1)
 		canvas_resized = cv2.resize(canvas, (FRAME_WIDTH, FRAME_HEIGHT))
 		cv2.imshow('canvas', canvas_resized)
-		#cv2.imshow('frame', frame_resized)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 	cap.release()
 	cv2.destroyAllWindows()
 
 
-roi_img = cv2.imread('./images/roi.jpg', 3)
+roi_img = cv2.imread('./images/roi_bright_green.jpg', 3)
 roi_hist = getHistogram(roi_img)
 
 
