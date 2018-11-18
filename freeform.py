@@ -66,20 +66,27 @@ def startVideoFeed(cam_index, hist=None):
 		drawCenters(pixels, canvas)
 		#drawCenters(pixels, frame)
 		canvas = np.flip(canvas, 1)
+<<<<<<< HEAD
+		canvas = cv2.resize(canvas, (650, 500))
+		#frame = cv2.resize(frame, (400, 400))
+		#output = np.hstack((frame, canvas))
+		cv2.imshow('freeflow', canvas)
+=======
 		#frame = np.flip(frame, 1)
 		canvas_resized = cv2.resize(canvas, (FRAME_WIDTH, FRAME_HEIGHT))
 		#frame_resized = cv2.resize(frame, (FRAME_WIDTH, FRAME_HEIGHT))
 		cv2.imshow('canvas', canvas_resized)
 		#cv2.imshow('frame', frame_resized)
+>>>>>>> 6cbf581d45862e2108ddbc1032b379ee2f837169
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 	cap.release()
 	cv2.destroyAllWindows()
 
 
-roi_img = cv2.imread('./images/roi_green.jpg', 3)
+roi_img = cv2.imread('./images/roi.jpg', 3)
 roi_hist = getHistogram(roi_img)
 
 
 
-startVideoFeed(1)
+startVideoFeed(0)
