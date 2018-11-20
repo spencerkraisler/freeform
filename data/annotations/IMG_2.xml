@@ -1,0 +1,26 @@
+<annotation>
+	<folder>index</folder>
+	<filename>IMG_2.jpg</filename>
+	<path>/Users/spencerkraisler/freeform/data/images/index/IMG_2.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1280</width>
+		<height>720</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>index</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>289</xmin>
+			<ymin>350</ymin>
+			<xmax>482</xmax>
+			<ymax>686</ymax>
+		</bndbox>
+	</object>
+</annotation>
