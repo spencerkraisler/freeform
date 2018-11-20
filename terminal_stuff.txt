@@ -1,5 +1,3 @@
-SHIT MIGHT NOT WORK HERE FYI
-
 Training:
 
 python3 train.py --logtostderr --train_dir=/Users/spencerkraisler/Desktop/freeform/models/model/checkpoints --pipeline_config_path=/Users/spencerkraisler/Desktop/freeform/models/model/ssd_mobilenet_v2_coco.config
